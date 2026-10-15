@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="رفيقك الصحي لمساعدتك على فهم الأعراض ومعرفة الخطوة التالية."
+    />
+    <meta name="theme-color" content="#f7f8f5" />
+    <title>عافية | رفيقك الصحي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="عافية، الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true">ع</span>
+          <span class="brand-name">عافية</span>
+        </a>
+        <div id="api-status" class="topbar-note"><span class="status-dot"></span> المساعد جاهز لسماعك</div>
+        <button id="key-settings" class="topbar-help" type="button">إعداد الاتصال</button>
+        <a class="topbar-help" href="#safety">متى أطلب المساعدة؟</a>
+      </header>
+
+      <main class="layout">
+        <section class="conversation-card" aria-labelledby="page-title">
+          <div class="welcome">
+            <p class="eyebrow">مساحة آمنة لفهم صحتك</p>
+            <h1 id="page-title">أهلًا بك، كيف تشعر اليوم؟</h1>
+            <p class="welcome-copy">
+              احكِ لي عن اللي مضايقك، وهسألك أسئلة بسيطة عشان أساعدك تفهم
+              أعراضك وتعرف الخطوة المناسبة.
+            </p>
+            <div class="suggestions" aria-label="أمثلة لأعراض">
+              <button class="suggestion" type="button" data-prompt="عندي كحة من يومين">عندي كحة</button>
+              <button class="suggestion" type="button" data-prompt="حاسس بسخونية وتعب">سخونية وتعب</button>
+              <button class="suggestion" type="button" data-prompt="عندي صداع من الصبح">صداع</button>
+            </div>
+          </div>
+
+          <div id="chat" class="chat" aria-live="polite" aria-label="محادثة المساعد">
+            <article class="message assistant-message">
+              <span class="message-label">عافية</span>
+              <p>أنا هنا أسمعك وأساعدك. إيه الأعراض اللي حاسس بيها؟ وإمتى بدأت؟</p>
+            </article>
+          </div>
+
+          <form id="chat-form" class="composer">
+            <label class="visually-hidden" for="message-input">اكتب الأعراض أو سؤالك</label>
+            <textarea
+              id="message-input"
+              name="message"
+              rows="1"
+              maxlength="1200"
+              placeholder="اكتب الأعراض أو اسألني..."
+              required
+            ></textarea>
+            <button id="send-button" class="send-button" type="submit" aria-label="إرسال">
+              <span aria-hidden="true">إرسال</span>
+            </button>
+          </form>
+          <p class="composer-hint">معلوماتك تساعدني أوجّهك، لكنها لا تغني عن رأي الطبيب.</p>
+          <p id="connection-hint" class="connection-hint" hidden>
+            لإرسال رسالتك، أضف مفتاح Gemini من «إعداد الاتصال».
+          </p>
+        </section>
+
+        <aside class="insights" aria-label="تقييم مبدئي وخطتك">
+          <section class="insight-card status-card" aria-labelledby="status-title">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">تقييمك الصحي</p>
+                <h2 id="status-title">هنرتب الصورة سوا</h2>
+              </div>
+              <span id="assessment-mark" class="soft-mark" aria-hidden="true">+</span>
+            </div>
+            <p id="status-copy" class="summary-copy">
+              ابدأ بوصف اللي حاسس بيه، وهنجمع التفاصيل المهمة واحدة واحدة.
+            </p>
+            <div id="urgency" class="urgency-chip" data-level="unknown">بانتظار التفاصيل</div>
+          </section>
+
+          <section class="insight-card chart-card severity-card" aria-labelledby="severity-title">
+            <div class="chart-title-row">
+              <div>
+                <p class="eyebrow">تقييمك الشخصي</p>
+                <h2 id="severity-title">شدة العرض</h2>
+              </div>
+              <span id="severity-value" class="chart-value">—<small>/ 10</small></span>
+            </div>
+            <div
+              id="severity-chart"
+              class="severity-chart"
+              data-has-score="false"
+              role="img"
+              aria-label="لم يتم تسجيل تقييم ذاتي لشدة العرض بعد"
+            >
+              <div class="severity-track">
+                <span class="severity-fill"></span>
+                <span class="severity-marker"></span>
+              </div>
+              <div class="severity-scale"><span>خفيف</span><span>متوسط</span><span>شديد</span></div>
+            </div>
+            <p id="severity-note" class="chart-note">لو حابب، قيّم شدة العرض من 0 إلى 10 عشان نعرضه هنا.</p>
+          </section>
+
+          <section class="insight-card chart-card route-card" aria-labelledby="route-title">
+            <div class="chart-title-row">
+              <div>
+                <p class="eyebrow">خريطة الخطوة التالية</p>
+                <h2 id="route-title">مسار الرعاية</h2>
+              </div>
+              <span id="route-badge" class="route-badge">لسه بنقيّم</span>
+            </div>
+            <div id="care-path" class="care-path" data-level="unknown" role="img" aria-label="مسار الرعاية لم يتحدد بعد">
+              <span class="route-line" aria-hidden="true"></span>
+              <span class="route-progress" aria-hidden="true"></span>
+              <div class="route-step" data-step="home"><span class="route-dot"></span><span>البيت</span></div>
+              <div class="route-step" data-step="pharmacist"><span class="route-dot"></span><span>الصيدلي</span></div>
+              <div class="route-step" data-step="doctor"><span class="route-dot"></span><span>الطبيب</span></div>
+              <div class="route-step" data-step="emergency"><span class="route-dot"></span><span>الطوارئ</span></div>
+            </div>
+            <p class="chart-note">توجيه مبدئي حسب إجاباتك، مش تشخيص طبي.</p>
+          </section>
+
+          <section class="insight-card possibilities-card" aria-labelledby="possibilities-title">
+            <div class="section-heading">
+              <span class="section-number">١</span>
+              <div>
+                <p class="eyebrow">للتثقيف، مش تشخيص</p>
+                <h2 id="possibilities-title">إيه الاحتمالات؟</h2>
+              </div>
+            </div>
+            <ul id="possibilities" class="insight-list empty-list">
+              <li>هنعرض احتمالات عامة بعد ما نعرف تفاصيل أكتر.</li>
+            </ul>
+          </section>
+
+          <section id="care-card" class="insight-card care-card" aria-labelledby="care-title">
+            <div class="section-heading">
+              <span class="section-number">٢</span>
+              <div>
+                <p class="eyebrow">توجيه مناسب لحالتك</p>
+                <h2 id="care-title">مين ممكن يساعدك؟</h2>
+              </div>
+            </div>
+            <p id="care-guidance" class="care-guidance">
+              هنعرف سوا إذا كانت الرعاية المنزلية كفاية أو الأفضل تستشير مختص.
+            </p>
+            <div id="professional-care" class="professional-care" hidden>
+              <span id="care-label" class="care-label"></span>
+              <p id="care-specialist" class="care-specialist"></p>
+            </div>
+          </section>
+
+          <section class="insight-card next-steps-card" aria-labelledby="next-steps-title">
+            <div class="section-heading">
+              <span class="section-number">٣</span>
+              <div>
+                <p class="eyebrow">خطوات واضحة</p>
+                <h2 id="next-steps-title">تعمل إيه دلوقتي؟</h2>
+              </div>
+            </div>
+            <ul id="next-steps" class="insight-list empty-list">
+              <li>اكتب أعراضك عشان نحدد الخطوة الأنسب.</li>
+            </ul>
+          </section>
+
+          <section id="safety" class="safety-note">
+            <strong>تنبيه مهم</strong>
+            <p>
+              عافية لا تشخّص ولا تصف علاجًا. لو عندك صعوبة شديدة في التنفس، ألم
+              قوي بالصدر، إغماء، أو تدهور سريع، اطلب الطوارئ فورًا.
+            </p>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <span>عافية — إرشاد صحي أولي، وليس بديلًا عن الطبيب.</span>
+        <span>لا تشارك بيانات شخصية أو معلومات تعريفية.</span>
+      </footer>
+    </div>
+
+    <dialog id="key-dialog" class="key-dialog" aria-labelledby="key-title">
+      <form id="key-form" class="key-form">
+        <p class="eyebrow">إعداد لمرة واحدة في الجلسة</p>
+        <h2 id="key-title">وصّل مساعد عافية</h2>
+        <p class="key-description">
+          أدخل مفتاح Google AI Studio لبدء المحادثة. سيُحفظ مؤقتًا في جلسة هذا
+          المتصفح فقط، ولن يُكتب في ملفات المشروع.
+        </p>
+        <label for="api-key-input">مفتاح Gemini API</label>
+        <input
+          id="api-key-input"
+          name="apiKey"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="AIza..."
+          required
+        />
+        <p class="key-warning">
+          اتصال المتصفح مناسب للاستخدام الشخصي فقط؛ لا تنشر المفتاح أو الصفحة
+          للعامة. استخدم مفتاحًا جديدًا إذا سبق مشاركته.
+        </p>
+        <div id="key-error" class="key-error" role="alert" hidden></div>
+        <div class="key-actions">
+          <button id="forget-key" class="forget-key" type="button" hidden>حذف المفتاح المحفوظ</button>
+          <button class="save-key" type="submit">حفظ وبدء المحادثة</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
